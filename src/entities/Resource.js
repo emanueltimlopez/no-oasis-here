@@ -6,9 +6,8 @@ export default class Resource extends Phaser.GameObjects.Sprite {
 
     this._type = type;
     
-
     this.setOrigin(0, 1);
-    this.setScale(0.7);
+    this.setScale(0.6);
     this.setX(this._getPositionX(index));
   }
 

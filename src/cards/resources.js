@@ -23,4 +23,12 @@ export const PRISIONER = {
   img: 'prisioner',
 }
 
+export const resourcesKeys = {
+  WATER: 'w',
+  FRIEND: 'f',
+  MONEY: 'm',
+  OBJECT: 'o',
+  PRISIONER: 'p',
+}
+
 export default [WATER, WATER, FRIEND, MONEY, MONEY];

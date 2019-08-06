@@ -3,7 +3,8 @@ import Card from '../entities/Card';
 import Resource from '../entities/Resource';
 import resources, { PRISIONER, WATER } from '../cards/resources';
 import cards, { RIOT, EXTREME, HEALTH, OASIS } from '../cards/paths';
-
+import { removeResources, removeRandomResources, addResources, 
+  addCardToStack, eliminateCardFromStack, countResource } from '../utils/stackUtils'
 
 export default class GameScene extends Phaser.Scene {
   constructor () {
@@ -16,12 +17,11 @@ export default class GameScene extends Phaser.Scene {
   }
  
   preload () {
-    this.load.image('card-background', 'src/assets/card.png');
-    this.load.image('waterKey', 'src/assets/w.png');
-    this.load.image('moneyKey', 'src/assets/m.png');
-    this.load.image('objectKey', 'src/assets/o.png');
-    this.load.image('prisionerKey', 'src/assets/p.png');
-    this.load.image('friendKey', 'src/assets/f.png');
+    this.load.image('w', 'src/assets/w.png');
+    this.load.image('m', 'src/assets/m.png');
+    this.load.image('o', 'src/assets/o.png');
+    this.load.image('p', 'src/assets/p.png');
+    this.load.image('f', 'src/assets/f.png');
     this.load.image('water', 'src/assets/water.png');
     this.load.image('money', 'src/assets/money.png');
     this.load.image('object', 'src/assets/object.png');
@@ -30,52 +30,50 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('assault', 'src/assets/assault.png');
     this.load.image('health', 'src/assets/health.png');
     this.load.image('lastchance', 'src/assets/lastchance.png');
-    this.load.image('n/n', 'src/assets/nn.png');
+    this.load.image('nn', 'src/assets/nn.png');
     this.load.image('merchant', 'src/assets/merchant.png');
     this.load.image('oasis', 'src/assets/oasis.png');
     this.load.image('rain', 'src/assets/rain.png');
     this.load.image('riot', 'src/assets/riot.png');
+    this.load.image('blank', 'src/assets/blank.png');
+    this.load.image('bg', 'src/assets/bg.png');
   }
 
   create () {
-    this._startCardStack();
-    this._startResourcesStack();
-    this._onDataChange();    
-  }
+    this.add
+      .sprite(0, 0, 'bg')
+      .setOrigin(0);
 
-  _randomCards(cards) {
-    return [...cards.sort(() => Math.random() - 0.5), OASIS];
+    this._startCardStack();
+    
+    this.registry.set('stackresources', resources);
+    this._generateResources(resources);
+
+    this.registry.events.on('changedata', this._updateData, this);
   }
 
   _startCardStack() {
-    this.registry.set('stackcards', this._randomCards(cards));
+    const randomCards = (cards) => [...cards.sort(() => Math.random() - 0.5), OASIS];
+    this.registry.set('stackcards', randomCards(cards));
     this.registry.set('actualcard', null);
   }
 
-  _startResourcesStack() {
-    this.registry.set('stackresources', resources);
-    this._generateResources();
-  }
-
-  _generateResources() {
-    const resources = this.registry.get('stackresources');
-    this._stack_resources = resources.map((resource, index) => new Resource(this, 0, 600, resource.type, index, resource.img));
-  }
-
-  _onDataChange() {
-    this.registry.events.on('changedata', this._updateData, this);
+  _generateResources(resources) {
+    if (this._stack_resources) this._stack_resources.forEach(resource => resource.destroy());
+    this._stack_resources = resources.map((resource, index) => new Resource(this, 0, 550, resource.type, index, resource.img));
   }
 
   _updateData(_, key, value) {
     if (key === 'actualcard') {
       const actualCard = this.registry.get('actualcard');
       const stackCards = this.registry.get('stackcards');
-      this._renderCard(stackCards[index], actualCard);
+      this._renderCard(stackCards[actualCard], actualCard);
     }
   }
 
   _renderCard(card, index) {
-    new Card(this, this.sys.game.config.width / 2, 0, card.img, card.options, index, this.onCloseCard);
+    const resources = this.registry.get('stackresources');
+    new Card(this, this.sys.game.config.width / 2, 50, card.img, card.options, index, this.onCloseCard, resources);
   }
 
   onCloseCard(index, option) {
@@ -86,7 +84,8 @@ export default class GameScene extends Phaser.Scene {
         this._startCardStack();
         break;
       case 'ELIMINATE':
-        this._eliminateCardFromStack(index);
+        const cards = this.registry.get('stackcards');
+        this.registry.set('stackcards', eliminateCardFromStack(cards, index));
         break;
       default:
         break;
@@ -99,67 +98,39 @@ export default class GameScene extends Phaser.Scene {
     this.registry.set('actualcard', index + 1);
   }
 
-  _eliminateCardFromStack(cards, index) {
-    cards[index] = null;
-    return [...cards.filter(Boolean)];
-  }
+  _boundsResources(stack, consecuences) {
+    let cards = this.registry.get('stackcards');
+    if (countResource(stack, PRISIONER) >= 5 ) {
+      cards = addCardToStack(cards, RIOT);
+    } else if (countResource(stack, WATER) == 0 ) {
+      cards = addCardToStack(cards, EXTREME);
+    }
 
-  _addCardToStack(cards, newCard) {
-    cards.push(newCard);
-    return [...cards];
-  }
-
-  _boundsResources(stack) {
-    const cards = this.registry.get('stackcards');
-    if (stack.find(resource => resource.type === PRISIONER.type) >= 5 ) {
-      cards = this._addCardToStack(cards, RIOT);
-    } else if (stack.find(resource => resource.type === WATER.type) == 0 ) {
-      cards = this._addCardToStack(cards, EXTREME);
+    if (consecuences) {
+      cards = addCardToStack(cards, HEALTH);
     }
     this.registry.set('stackcards', [...cards]);
   }
 
-  _setConsequences(option) {
-    const cards = this.registry.get('stackcards');
-    if (option.consecuences) {
-      cards = this._addCardToStack(cards, HEALTH);
-    }
-    this.registry.set('stackcards', [...cards]);
-  }
 
-  _resourcesChanges(options) {
-    const stack = this.registry.get('stackresources');
+  _resourcesChanges(option) {
+    let stack = this.registry.get('stackresources');
 
     if (option.resourcesIn) {
-      stack = this._addResources(stack, option.resourcesIn);
+      stack = addResources(stack, option.resourcesIn);
     }
 
     if (option.resourcesOut) {
-      if (typeof option.resourcesOut === 'boolean') {
-        stack = this._removeRandomResources(stack, option.resourcesOut);
+      if (option.resourcesOut.length === 0) {
+        stack = removeRandomResources(stack, option.resourcesOut);
       } else {
-        stack = this._removeResources(stack, option.resourcesOut);
+        stack = removeResources(stack, option.resourcesOut);
       }
     }
 
-    this._boundsResources(stack);
-    this._setConsequences();
+    this._boundsResources(stack, option.consecuences);
+    this._generateResources(stack);
     this.registry.set('stackresources', [...stack]);
   }
 
-  _removeResources(stack, resources) {
-    const foundIndex = resources.map(resource => stack.findIndex(res => res.type === resource));
-    foundIndex.forEach(index => { stack[index] = null; } );
-    return [...stack.filter(Boolean)];
-  }
-
-  _removeRandomResources(stack, resources) {
-    const finalesources = stack.filter(() => (Math.random() < 0.5));
-    return [...finalesources];
-  }
-
-  _addResources(stack, resources) {
-    resources.forEach(resource => stack.push(resources.find(res => res.type === resource)[0]));
-    return [...stack];
-  }
 };

@@ -128,7 +128,7 @@ export const ASSAULT = {
       resourcesOut: [ 'FRIEND', 'FRIEND' ],
     }, {
       text: 'Take whatever you want',
-      resourcesOut: true,
+      resourcesOut: [],
       status: 'ELIMINATE',
     }
   ]
