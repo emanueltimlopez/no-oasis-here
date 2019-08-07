@@ -15,34 +15,43 @@ export default class Option extends Phaser.GameObjects.Sprite {
     this.setX(this._getPositionX(index));
     this.on('pointerdown', this._selectHandler);
 
-    this.container = this.scene.add.container();
+    this._container = [];
     const t = this._renderText(this.x, this.y + 10, 130, option.text);
-    this.container.add(t);
+    this._container.push(t);
+
+    let active = true;
 
     if (option.resourcesOut) {
-      const resOut = this._renderResourcesKeys(this.x - 30, this.y + 90, option.resourcesOut);
-      this.container.add(resOut);
-      this._checkActive(resourcesStack, option.resourcesOut);
+      active = this._checkActive(resourcesStack, option.resourcesOut);
+      const resOut = this._renderResourcesKeys(this.x - 30, this.y + 80, option.resourcesOut, active);
+      resOut.forEach(res => this._container.push(res));
     }
 
     if (option.resourcesIn) {
-      const resIn = this._renderResourcesKeys(this.x - 30, this.y + 125, option.resourcesIn);
-      this.container.add(resIn);
+      const resIn = this._renderResourcesKeys(this.x - 30, this.y + 125, option.resourcesIn, true);
+      resIn.forEach(res => this._container.push(res));
+    }
+
+    if (option.consequence) {
+      const consequence = this._renderText(this.x, this.y + 150, 130, `Adds card ${option.consequence}`);
+      this._container.push(consequence);
+    }
+
+    if (active) {
+      this.setInteractive({
+        useHandCursor: true
+      });
     }
   }
 
   _checkActive(resources, resourcesOut) {
     let find = true;
     resourcesOut.forEach(resource => {
-      const index = resources.filter(Boolean).findIndex(res => res.type === resource);
+      const index = resources.findIndex(res => res && res.type === resource);
       if (index === -1) find = false;
       resources[index] == null;
     })
-    if (find) {
-      this.setInteractive({
-        useHandCursor: true
-      });
-    }
+    return find;
   }
 
   _getPositionX(index) {
@@ -56,7 +65,6 @@ export default class Option extends Phaser.GameObjects.Sprite {
   }
 
   _selectHandler() {
-    this.container.destroy();
     this._closeHandler(this._option);
   }
 
@@ -68,14 +76,19 @@ export default class Option extends Phaser.GameObjects.Sprite {
       .setOrigin(0.5, 0);
   }
 
-  _createResourceKey(x, y, key) {
+  _createResourceKey(x, y, key, active) {
     return this.scene.add
       .sprite(x, y, key)
       .setScale(0.5)
-      .setOrigin(0.5);
+      .setOrigin(0.5)
+      .setAlpha(active ? 1 : 0.3);
   }
 
-  _renderResourcesKeys(x, y, resources) {
-    return resources.map((resource, index) => this._createResourceKey(x + (index * 30), y, resourcesKeys[resource]))
+  _renderResourcesKeys(x, y, resources, active) {
+    return resources.map((resource, index) => this._createResourceKey(x + (index * 30), y, resourcesKeys[resource], active))
+  }
+
+  removeAll() {
+    this._container.forEach(child => child.destroy());
   }
 }

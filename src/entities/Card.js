@@ -33,7 +33,10 @@ export default class Card extends Phaser.GameObjects.Sprite {
 
   closeHandler(option) {
     if (this._open) {
-      this._optionsInstances.forEach(option => option.destroy());
+      this._optionsInstances.forEach(option => {
+        option.removeAll();
+        option.destroy();
+      });
     }
     this._onCloseCard(this._index, option);
     this.destroy();

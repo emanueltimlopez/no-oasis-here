@@ -31,4 +31,6 @@ export const resourcesKeys = {
   PRISIONER: 'p',
 }
 
-export default [WATER, WATER, FRIEND, MONEY, MONEY];
+export const all = [WATER, FRIEND, MONEY, OBJECT, PRISIONER]
+
+export default [WATER, WATER, FRIEND, OBJECT, MONEY, MONEY];

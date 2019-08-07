@@ -14,9 +14,7 @@ export default class MenuScene extends Phaser.Scene {
   }
  
   preload () {
-    this.load.image('logo', 'src/assets/logo.png');
     this.load.image('bg', 'src/assets/bg.png');
-    this.load.image('start', 'src/assets/start.png');
     this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
   }
  
@@ -40,9 +38,13 @@ export default class MenuScene extends Phaser.Scene {
           { fontFamily: 'JGJUncial', fontSize: 80, color: '#ffffff' })
           .setOrigin(0.5);
 
-        this.add.text(this.sys.game.config.width / 2, 315, 'An adventure with a lot of problems', 
-          { fontFamily: 'Justinian2', fontSize: 15, color: '#ffffff' })
+        this.add.text(this.sys.game.config.width / 2, 315, 'An adventure where you can',
+          { fontFamily: 'Justinian2', fontSize: 16, color: '#ffffff' })
           .setOrigin(0.5);
+
+        this.add.text(this.sys.game.config.width / 2, 335, 'exchange friends for water', 
+            { fontFamily: 'Justinian2', fontSize: 16, color: '#ffffff' })
+            .setOrigin(0.5);
 
         const startButton = this.add.text(this.sys.game.config.width / 2, 460, 'START', 
           { fontFamily: 'Justinian2', fontSize: 35, color: '#ffffff' })

@@ -1,7 +1,7 @@
 import 'phaser';
 import Card from '../entities/Card';
 import Resource from '../entities/Resource';
-import resources, { PRISIONER, WATER } from '../cards/resources';
+import resources, { PRISIONER, WATER, all } from '../cards/resources';
 import cards, { RIOT, EXTREME, HEALTH, OASIS } from '../cards/paths';
 import { removeResources, removeRandomResources, addResources, 
   addCardToStack, eliminateCardFromStack, countResource } from '../utils/stackUtils'
@@ -53,9 +53,9 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _startCardStack() {
-    const randomCards = (cards) => [...cards.sort(() => Math.random() - 0.5), OASIS];
-    this.registry.set('stackcards', randomCards(cards));
-    this.registry.set('actualcard', null);
+    const getCards = (c) => [...c.sort(() => Math.random() - 0.5), OASIS];
+    this.registry.set('stackcards', getCards(cards));
+    this.registry.set('actualcard', 0);
   }
 
   _generateResources(resources) {
@@ -77,21 +77,19 @@ export default class GameScene extends Phaser.Scene {
   }
 
   onCloseCard(index, option) {
+    this._resourcesChanges(option);
+
     switch(option.status) {
       case 'LOSE':
+        this.scene.start('Result');
         break;
       case 'CONTINUE':
         this._startCardStack();
         break;
-      case 'ELIMINATE':
-        const cards = this.registry.get('stackcards');
-        this.registry.set('stackcards', eliminateCardFromStack(cards, index));
-        break;
       default:
+        this._nextCard(index);
         break;
     }
-    this._resourcesChanges(option);
-    this._nextCard(index);
   }
 
   _nextCard(index) {
@@ -117,7 +115,7 @@ export default class GameScene extends Phaser.Scene {
     let stack = this.registry.get('stackresources');
 
     if (option.resourcesIn) {
-      stack = addResources(stack, option.resourcesIn);
+      stack = addResources(stack, all, option.resourcesIn);
     }
 
     if (option.resourcesOut) {
