@@ -12,6 +12,9 @@ export default class ResultScene extends Phaser.Scene {
   create () {
     this.cameras.main.backgroundColor.setTo(255,255,255);
 
+    const music = this.sound.add('menu-music')
+    music.play({ loop: true });
+
     this.add
       .sprite(0, 0, 'bg')
       .setOrigin(0);
@@ -33,6 +36,7 @@ export default class ResultScene extends Phaser.Scene {
         startButton.setScale(1);
       })
       .on('pointerdown', () => {
+        music.stop();
         this.scene.start('Tutorial');
       });
   }

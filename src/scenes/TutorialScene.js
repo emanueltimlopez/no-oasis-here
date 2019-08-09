@@ -9,13 +9,15 @@ export default class TutorialScene extends Phaser.Scene {
     this.load.image('tutorial1', 'src/assets/tutorial1.png');
     this.load.image('tutorial2', 'src/assets/tutorial2.png');
     this.load.image('tutorial3', 'src/assets/tutorial3.png');
-    this.load.image('bg', 'src/assets/bg.png');
   }
  
   create () {
     this.cameras.main.backgroundColor.setTo(255,255,255);
     let step = 0;
-    
+
+    const music = this.sound.add('menu-music')
+    music.play({ loop: true });
+
     this.add
       .sprite(0, 0, 'bg')
       .setOrigin(0)
@@ -32,6 +34,7 @@ export default class TutorialScene extends Phaser.Scene {
           text.setText('Choose carefully what option follow');
           img3.setVisible(true);
         } else if (step >= 2) {
+          music.stop();
           this.scene.start('Game');
           setTimeout(() => { this.registry.set('actualcard', 0); }, 1500);
         }

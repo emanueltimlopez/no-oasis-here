@@ -53,7 +53,7 @@ export const OASIS = {
   options: [
     {
       text: 'Take garbage from the floor',
-      resourcesIn: [ 'OBJECT', 'OBJECT' ],
+      resourcesIn: [ 'OBJECT' ],
       status: 'CONTINUE',
     }, {
       text: 'Drink water from the well',
@@ -91,14 +91,15 @@ export const RAIN = {
   options: [
     {
       text: 'Convert rain to water',
-      resourcesIn: [ 'WATER', 'WATER' ],
+      resourcesIn: [ 'WATER' ],
       resourcesOut: [ 'OBJECT' ],
     }, {
       text: 'Drink rain',
       resourcesIn: [ 'WATER' ],
       consequence: 'HEALTH',
     }, {
-      text: 'Wait for it to stop raining',
+      text: 'Lightning kills friend',
+      resourcesOut: [ 'FRIEND' ],
     }
   ]
 }
@@ -113,7 +114,7 @@ export const ASSAULT = {
     }, {
       text: 'Fight, losing friends',
       resourcesIn: [ 'PRISIONER' ],
-      resourcesOut: [ 'FRIEND', 'FRIEND' ],
+      resourcesOut: [ 'FRIEND' ],
     }, {
       text: 'Take whatever you want',
       resourcesOut: [],
@@ -134,10 +135,10 @@ export const MERCHANT = {
       resourcesIn: [ 'MONEY', 'MONEY' ],
       resourcesOut: [ 'FRIEND' ],
     }, {
-      text: 'It scams you and steals you',
-      resourcesOut: [],
+      text: 'Become friends',
+      resourcesIn: [ 'FRIEND' ],
     }
   ]
 }
 
-export default [ MERCHANT, MERCHANT, ASSAULT, RAIN, UNKNOWN, UNKNOWN, HEALTH ];
+export default [ MERCHANT, ASSAULT, RAIN, UNKNOWN, UNKNOWN, HEALTH ];

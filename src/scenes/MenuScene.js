@@ -16,10 +16,14 @@ export default class MenuScene extends Phaser.Scene {
   preload () {
     this.load.image('bg', 'src/assets/bg.png');
     this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
+    this.load.audio('menu-music', 'src/assets/menu_music.mp3');
   }
  
   create () {
     this.cameras.main.backgroundColor.setTo(255,255,255);
+
+    const music = this.sound.add('menu-music')
+    music.play({ loop: true });
 
     this.add
       .sprite(0, 0, 'bg')
@@ -59,6 +63,7 @@ export default class MenuScene extends Phaser.Scene {
             startButton.setScale(1);
           })
           .on('pointerdown', () => {
+            music.stop();
             this.scene.start('Tutorial');
           });
       }

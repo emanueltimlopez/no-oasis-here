@@ -16,6 +16,9 @@ export const addResources = (stack, allResources, resources) => {
   return [...stack];
 }
 
-export const addCardToStack = (cards, newCard) => ([...cards, newCard]);
+export const addCardToStack = (cards, newCard, index) => {
+  cards.splice(index, 0, newCard)
+  return [...cards]
+};
 
 export const countResource = (stack, resource) => stack.filter(res => res.type === resource.type).length;

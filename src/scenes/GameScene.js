@@ -11,7 +11,6 @@ export default class GameScene extends Phaser.Scene {
     super('Game');
 
     this._stack_resources = null;
-    this._stack_cards = null;
 
     this.onCloseCard = this.onCloseCard.bind(this);
   }
@@ -37,6 +36,7 @@ export default class GameScene extends Phaser.Scene {
     this.load.image('riot', 'src/assets/riot.png');
     this.load.image('blank', 'src/assets/blank.png');
     this.load.image('bg', 'src/assets/bg.png');
+    this.load.audio('game-music', 'src/assets/game_music.mp3');
   }
 
   create () {
@@ -44,16 +44,23 @@ export default class GameScene extends Phaser.Scene {
       .sprite(0, 0, 'bg')
       .setOrigin(0);
 
+    this.music = this.sound.add('game-music')
+    this.music.play({ loop: true });
+      
     this._startCardStack();
     
     this.registry.set('stackresources', resources);
+    this.registry.set('score', 0);
     this._generateResources(resources);
 
     this.registry.events.on('changedata', this._updateData, this);
+
+    this.scoreLabel = this.add.text(this.sys.game.config.width - 150, 30, "0Km", 
+      { fontFamily: 'Arial', fontSize: 30, fill: "#ffffff", stroke: "#535353", strokeThickness: 5 }); 
   }
 
   _startCardStack() {
-    const getCards = (c) => [...c.sort(() => Math.random() - 0.5), OASIS];
+    const getCards = (c) => [...c.sort(() => Phaser.Math.Between(0, 1)), OASIS];
     this.registry.set('stackcards', getCards(cards));
     this.registry.set('actualcard', 0);
   }
@@ -69,6 +76,9 @@ export default class GameScene extends Phaser.Scene {
       const stackCards = this.registry.get('stackcards');
       this._renderCard(stackCards[actualCard], actualCard);
     }
+    if (key === 'score') {
+      this.scoreLabel.setText(`${value}Km`);
+    }
   }
 
   _renderCard(card, index) {
@@ -81,6 +91,7 @@ export default class GameScene extends Phaser.Scene {
 
     switch(option.status) {
       case 'LOSE':
+        this.music.stop();
         this.scene.start('Result');
         break;
       case 'CONTINUE':
@@ -93,19 +104,22 @@ export default class GameScene extends Phaser.Scene {
   }
 
   _nextCard(index) {
+    this.registry.set('score', this.registry.get('score') + Phaser.Math.Between(1, 4));
     this.registry.set('actualcard', index + 1);
   }
 
-  _boundsResources(stack, consecuences) {
+  _boundsResources(stack, consequence) {
     let cards = this.registry.get('stackcards');
-    if (countResource(stack, PRISIONER) >= 5 ) {
-      cards = addCardToStack(cards, RIOT);
+    const actualCard = this.registry.get('actualcard');
+
+    if (countResource(stack, PRISIONER) >= 4 ) {
+      cards = addCardToStack(cards, RIOT, actualCard + 1);
     } else if (countResource(stack, WATER) == 0 ) {
-      cards = addCardToStack(cards, EXTREME);
+      cards = addCardToStack(cards, EXTREME, actualCard + 1);
     }
 
-    if (consecuences) {
-      cards = addCardToStack(cards, HEALTH);
+    if (consequence) {
+      cards = addCardToStack(cards, HEALTH, actualCard + 1);
     }
     this.registry.set('stackcards', [...cards]);
   }
@@ -126,8 +140,12 @@ export default class GameScene extends Phaser.Scene {
       }
     }
 
-    this._boundsResources(stack, option.consecuences);
+    this._boundsResources(stack, option.consequence);
     this._generateResources(stack);
+    if (stack.length === 0) {
+      this.music.stop();
+      this.scene.start('Result');
+    }
     this.registry.set('stackresources', [...stack]);
   }
 
