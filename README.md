@@ -7,4 +7,4 @@ For a personal challenge.
 https://ematimlopez.itch.io/no-oasis-here
 
 ## Screenshots
-![Screenshot](https://raw.githubusercontent.com/emanueltimlopez/no-oasis-here/master/screenshot01.png)
+![Screenshot](https://raw.githubusercontent.com/emanueltimlopez/no-oasis-here/master/screenshot01.jpg)
