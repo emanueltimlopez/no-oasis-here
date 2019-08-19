@@ -37,7 +37,7 @@ export default class ResultScene extends Phaser.Scene {
       })
       .on('pointerdown', () => {
         music.stop();
-        this.scene.start('Tutorial');
+        this.scene.start('Game');
       });
   }
 };

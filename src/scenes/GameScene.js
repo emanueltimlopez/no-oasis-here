@@ -54,9 +54,15 @@ export default class GameScene extends Phaser.Scene {
     this._generateResources(resources);
 
     this.registry.events.on('changedata', this._updateData, this);
+    this.sys.events.once('shutdown', this._shutdown, this);
+    this._updateData(null, 'actualcard', 0);
 
     this.scoreLabel = this.add.text(this.sys.game.config.width - 150, 30, "0Km", 
       { fontFamily: 'Arial', fontSize: 30, fill: "#ffffff", stroke: "#535353", strokeThickness: 5 }); 
+  }
+
+  _shutdown() {
+    this.registry.events.off('changedata');
   }
 
   _startCardStack() {

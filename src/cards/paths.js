@@ -98,8 +98,8 @@ export const RAIN = {
       resourcesIn: [ 'WATER' ],
       consequence: 'HEALTH',
     }, {
-      text: 'Lightning kills friend',
-      resourcesOut: [ 'FRIEND' ],
+      text: 'A lightning kills and burn',
+      resourcesOut: [],
     }
   ]
 }

@@ -36,7 +36,6 @@ export default class TutorialScene extends Phaser.Scene {
         } else if (step >= 2) {
           music.stop();
           this.scene.start('Game');
-          setTimeout(() => { this.registry.set('actualcard', 0); }, 1500);
         }
         step += 1;
       });
